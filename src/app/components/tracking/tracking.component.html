@@ -1,0 +1,104 @@
+<div class="min-h-screen bg-gray-900 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- En-tête -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-white mb-2">
+        🔍 Système de Mouchard
+      </h1>
+      <p class="text-gray-300">Suivi en temps réel des activités utilisateurs</p>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Total Activités</p>
+            <p class="text-3xl font-bold text-white mt-1">{{ totalActivities() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Activités Récentes</p>
+            <p class="text-3xl font-bold text-white mt-1">{{ recentCount() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Utilisateurs Actifs</p>
+            <p class="text-3xl font-bold text-white mt-1">{{ activeUsers() }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flux en temps réel -->
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+      <div class="bg-blue-700 px-6 py-4">
+        <h2 class="text-xl font-semibold text-white flex items-center gap-2">
+          <span class="animate-pulse">🔴</span>
+          Flux en Temps Réel
+        </h2>
+      </div>
+
+      <div class="p-6">
+        <div class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
+          @for (activity of activities(); track activity.id) {
+            <div class="bg-gray-700 rounded-lg p-4 border border-gray-600 transition-all duration-300 transform">
+              <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-blue-400 rounded-lg flex items-center justify-center text-white font-bold">
+                    {{ activity.userId.slice(-1) }}
+                  </div>
+                  <div>
+                    <h3 class="text-white font-semibold">{{ activity.action }}</h3>
+                    <p class="text-gray-300 text-sm">User: {{ activity.userId }}</p>
+                  </div>
+                </div>
+                <span [class]="getActionBadgeClass(activity.action)">
+                  {{ activity.action }}
+                </span>
+              </div>
+
+              <p class="text-gray-200 text-sm mb-2">{{ activity.details }}</p>
+
+              <div class="flex items-center justify-between text-xs text-gray-400">
+                <span class="flex items-center gap-1">
+                  📍 {{ activity.page }}
+                </span>
+                <span>
+                  🕐 {{ formatTime(activity.timestamp) }}
+                </span>
+                @if (activity.duration) {
+                  <span>
+                    ⏱️ {{ activity.duration }}s
+                  </span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="text-center py-12 text-gray-400">
+              <p class="text-lg">Aucune activité pour le moment...</p>
+              <p class="text-sm mt-2">Les activités apparaîtront ici en temps réel</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Bouton d'action -->
+    <div class="mt-6 flex justify-end">
+      <button
+        (click)="simulateActivity()"
+        class="bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+        Simuler une Activité
+      </button>
+    </div>
+  </div>
+</div>
