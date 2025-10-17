@@ -1,8 +1,8 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DashboardService } from '../services/dashboard.service';
-import { TrackingService } from '../services/tracking.service';
-import { User, UserRole } from '../models/user.model';
+import { DashboardService } from '../../services/dashboard.service';
+import { TrackingService } from '../../services/tracking.service';
+import { User, UserRole } from '../../models/user.model';
 
 @Component({
   selector: 'app-dashboard',

@@ -3,6 +3,9 @@ import { Component, OnInit, OnDestroy, computed, effect, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { TrackingService } from '../../services/tracking.service';
 import { Subject, takeUntil } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { loadActivities, addActivity } from '../../store/tracking.actions';
+import { selectActivities } from '../../store/tracking.selectors';
 
 @Component({
   selector: 'app-tracking',
@@ -14,10 +17,14 @@ import { Subject, takeUntil } from 'rxjs';
 export class TrackingComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly trackingService = inject(TrackingService)
+  private readonly store = inject(Store);
 
   // Utilisation des signals du service
   activities = this.trackingService.getActivitiesSignal();
   totalActivities = this.trackingService.totalActivities;
+
+  // NgRx-backed activities observable (kept for demonstration)
+  ngrxActivities$ = this.store.select(selectActivities);
 
   // Computed signals locaux
   recentCount = computed(() =>
@@ -44,11 +51,23 @@ export class TrackingComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Dispatch initial load to NgRx store
+    this.store.dispatch(loadActivities({ activities: this.activities() } as any));
+
     // Combinaison RxJS + Signals
     this.trackingService.getActivitiesStream()
       .pipe(takeUntil(this.destroy$))
       .subscribe(activities => {
+        // Keep service-driven signals in sync with the store by dispatching add actions
+        activities.forEach(act => this.store.dispatch(addActivity({ activity: act } as any)));
         console.log('Stream update:', activities.length);
+      });
+
+    // Subscribe to store updates for debugging
+    this.ngrxActivities$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(list => {
+        console.log('NgRx store activities:', list.length);
       });
   }
 
@@ -85,13 +104,17 @@ export class TrackingComponent implements OnInit, OnDestroy {
   simulateActivity(): void {
     const actions = ['VIEW_PAGE', 'UPDATE_PROFILE', 'CREATE_ITEM'];
     const pages = ['/dashboard', '/profile', '/settings'];
-
-    this.trackingService.addActivity({
+    // this.trackingService.addActivity(newAct);
+    const newAct = {
       userId: `user-${Math.floor(Math.random() * 5) + 1}`,
       action: actions[Math.floor(Math.random() * actions.length)],
       details: 'Action simulée manuellement',
       page: pages[Math.floor(Math.random() * pages.length)],
       duration: Math.floor(Math.random() * 60) + 10
-    });
+    } as any;
+
+    // Update service (signals) and dispatch to store(Ngrx)
+    this.trackingService.addActivity(newAct);
+    this.store.dispatch(addActivity({ activity: newAct } as any));
   }
 }

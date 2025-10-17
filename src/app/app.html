@@ -1,2 +1,21 @@
-<app-tracking></app-tracking>
-<router-outlet />
+<div class="app-shell">
+  <aside class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="brand">DashTrack</div>
+    <nav>
+      <ul>
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mouchard</a></li>
+        <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <h1>{{ title() }}</h1>
+    </header>
+
+    <section class="view">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>
